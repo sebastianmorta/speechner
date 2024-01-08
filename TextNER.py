@@ -5,10 +5,11 @@ import torch
 import torch.nn as nn
 from transformers.modeling_outputs import SequenceClassifierOutput
 from Ontonotes import Ontonotes5Features
-
+device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu')
 
 class CustomTextModel(BertPreTrainedModel):
     config_class = AutoConfig
+
     def __init__(
             self,
             config,
@@ -30,7 +31,7 @@ class CustomTextModel(BertPreTrainedModel):
         text_output = self.bert(
             input_ids=input_ids,
             attention_mask=attention_mask
-         ).pooler_output
+        ).pooler_output
 
         logits = self.classifier(text_output)
         loss = None
@@ -46,6 +47,7 @@ class CustomTextModel(BertPreTrainedModel):
 
         return SequenceClassifierOutput(loss=loss, logits=logits)
 
+
 def evaluate_text_model(dataset, tokenizer, model):
     true_y = []
     pred_y = []
@@ -56,16 +58,16 @@ def evaluate_text_model(dataset, tokenizer, model):
 
         with torch.no_grad():
             output = model(**tokenized_item)
-            logits = output.logits.to('mps')
+            logits = output.logits.to(device)
             predictions = torch.argmax(logits, dim=0)
 
         true_y.append(gold[1:-1])
         pred_y.append(predictions.tolist()[1:-1])
     return [true_y, pred_y]
 
+
 def tokenize_adjust_labels(example, tokenizer):
-    tokenized_samples = tokenizer.encode_plus(example['tokens'], is_split_into_words=True, return_tensors="pt").to(
-        "mps")
+    tokenized_samples = tokenizer.encode_plus(example['tokens'], is_split_into_words=True, return_tensors="pt").to(device)
     tokenized_samples.pop("token_type_ids", None)
     prev_wid = -1
     word_ids_list = tokenized_samples.word_ids()
