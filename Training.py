@@ -11,46 +11,10 @@ import AudioTextNER
 import TextNER
 from PreprocessDataset import DatasetHelper, preprocess_text_voxpopuli, preprocess_audio_text_voxpopuli_non_normalized
 from Ontonotes import Ontonotes5Features
+
 os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
 import torch
 import torch.nn as nn
-
-parser = argparse.ArgumentParser()
-parser.add_argument("path", help="path do the data directory")
-parser.add_argument("target", help='target column name, e.g. "1001.PM2.5[calibrated]"')
-parser.add_argument("epochs", help="number of training epochs", type=int)
-parser.add_argument("batch", help="batch size", type=int)
-parser.add_argument("patience", help="early stopping patience", type=int)
-parser.add_argument("--window", help="length of the train window in rolling window", type=int)
-parser.add_argument("--forecast", help="length of the forecast horizon", type=int)
-
-args = parser.parse_args()
-config = vars(args)
-
-if not args.window:
-    win = 192
-else:
-    win = args.window
-
-if not args.forecast:
-    forecast = 4
-else:
-    forecast = args.forecast
-
-feature_columns = [args.target]
-# model types available: lstm, linear, lstm2 (cnn-lstm without cnn layer), cnn-lstm
-# (IMPORTANT: FOR LSTM2 and CNN-LSTM THE BATCH SIZE IS AUTOMATICALLY SET TO 1)
-start_experiment(data_path=args.path, use_cols=feature_columns, target_column_name=args.target, train_window_length=win,
-                 forecast_horizon=forecast, num_epochs=args.epochs, batch_size=args.batch, patience=args.patience,
-                 polish_aqi=False, model_type='linear')
-start_experiment(data_path=args.path, use_cols=feature_columns, target_column_name=args.target, train_window_length=win,
-                 forecast_horizon=forecast, num_epochs=args.epochs, batch_size=args.batch, patience=args.patience,
-                 polish_aqi=False, model_type='lstm')
-# start_experiment(data_path=args.path, use_cols=feature_columns, target_column_name=args.target, train_window_length=win, forecast_horizon=forecast, num_epochs=args.epochs, batch_size=args.batch, patience=args.patience, polish_aqi=False, model_type='lstm2')
-start_experiment(data_path=args.path, use_cols=feature_columns, target_column_name=args.target, train_window_length=win,
-                 forecast_horizon=forecast, num_epochs=args.epochs, batch_size=args.batch, patience=args.patience,
-                 polish_aqi=False, model_type='cnn-lstm')
-
 
 DATASETFRAC = '100'
 path_to_dataset = f'./MappedDataset/Voxpopuli{DATASETFRAC}%p'
@@ -98,6 +62,5 @@ if __name__ == "__main__":
         )
         trainer.train()
         result = eval(dataset['validation'], text_tokenizer, model)
-        torch.save(model.state_dict(),f'./TorchResult/{model.model_name}{DATASETFRAC}p.pth')
+        torch.save(model.state_dict(), f'./TorchResult/{model.model_name}{DATASETFRAC}p.pth')
         model.save_pretrained(f'./FromPretrainedResult/{model.model_name}{DATASETFRAC}p')
-
