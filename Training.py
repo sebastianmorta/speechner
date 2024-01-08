@@ -40,11 +40,10 @@ dataset = load_from_disk(path_to_dataset)
 if __name__ == "__main__":
 
     for model, eval in zip(models, evaluators):
-        print(f'{model.model_name}')
         training_args = TrainingArguments(
             output_dir=f"./TrainResult{model.model_name}{DATASETFRAC}p",
             evaluation_strategy="steps",
-            num_train_epochs=args.epochs,
+            num_train_epochs=8,
             per_device_train_batch_size=8,
             warmup_steps=500,
             weight_decay=0.01,
@@ -61,6 +60,6 @@ if __name__ == "__main__":
             data_collator=data_collator,
         )
         trainer.train()
-        result = eval(dataset['validation'], text_tokenizer, model)
+        # result = eval(dataset['validation'], text_tokenizer, model)
         torch.save(model.state_dict(), f'./TorchResult/{model.model_name}{DATASETFRAC}p.pth')
         model.save_pretrained(f'./FromPretrainedResult/{model.model_name}{DATASETFRAC}p')
