@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     for model, eval in zip(models, evaluators):
         training_args = TrainingArguments(
-            output_dir=f"./TrainResult{model.model_name}{DATASETFRAC}p",
+            output_dir=f"./results/TrainResult{model.model_name}{DATASETFRAC}p",
             evaluation_strategy="steps",
             num_train_epochs=8,
             per_device_train_batch_size=8,
@@ -61,5 +61,6 @@ if __name__ == "__main__":
         )
         trainer.train()
         # result = eval(dataset['validation'], text_tokenizer, model)
+        model.save_configs(f'./Configs/')
         torch.save(model.state_dict(), f'./TorchResult/{model.model_name}{DATASETFRAC}p.pth')
         model.save_pretrained(f'./FromPretrainedResult/{model.model_name}{DATASETFRAC}p')

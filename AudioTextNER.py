@@ -31,6 +31,10 @@ class CustomAudioTextModel(Wav2Vec2PreTrainedModel):
 
         self.classifier = nn.Linear(self.combined_dim, num_labels)
 
+    def save_configs(self, path):
+        self.bert.config.save_pretrained(path + 'bert')
+        self.wav2vec2.config.save_pretrained(path + 'wav2vec2')
+
     def forward(
             self,
             input_audio,
@@ -71,7 +75,6 @@ def evaluate_audio_text_model(dataset, tokenizer, model):
         input_audio = item['input_audio']  # Zakładam, że dane audio są już w odpowiednim formacie
 
         if not isinstance(input_audio, torch.Tensor):
-
             input_audio = torch.tensor(input_audio, dtype=torch.float32)
 
         if input_audio.ndim == 1:

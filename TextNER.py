@@ -5,7 +5,9 @@ import torch
 import torch.nn as nn
 from transformers.modeling_outputs import SequenceClassifierOutput
 from Ontonotes import Ontonotes5Features
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu')
+
 
 class CustomTextModel(BertPreTrainedModel):
     config_class = AutoConfig
@@ -21,6 +23,9 @@ class CustomTextModel(BertPreTrainedModel):
         self.classifier = nn.Linear(config.hidden_size, num_labels)
         self.num_labels = num_labels
         self.text_dim = config.hidden_size
+
+    def save_configs(self, path):
+        self.bert.config.save_pretrained(path + 'bertText')
 
     def forward(
             self,
@@ -67,7 +72,8 @@ def evaluate_text_model(dataset, tokenizer, model):
 
 
 def tokenize_adjust_labels(example, tokenizer):
-    tokenized_samples = tokenizer.encode_plus(example['tokens'], is_split_into_words=True, return_tensors="pt").to(device)
+    tokenized_samples = tokenizer.encode_plus(example['tokens'], is_split_into_words=True, return_tensors="pt").to(
+        device)
     tokenized_samples.pop("token_type_ids", None)
     prev_wid = -1
     word_ids_list = tokenized_samples.word_ids()
