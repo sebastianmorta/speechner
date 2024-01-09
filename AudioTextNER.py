@@ -61,7 +61,7 @@ class CustomAudioTextModel(Wav2Vec2PreTrainedModel):
 def evaluate_audio_text_model(dataset, tokenizer, model):
     true_y = []
     pred_y = []
-    model.to("cpu")
+    model.to('cuda' if torch.cuda.is_available() else 'cpu')
 
     for item in tqdm(dataset):
         tokenized_text = tokenize_adjust_labels(item, tokenizer)

@@ -16,10 +16,10 @@ os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
 import torch
 import torch.nn as nn
 
-DATASETFRAC = '100'
-path_to_dataset = f'./MappedDataset/Voxpopuli{DATASETFRAC}%p'
+DATASETFRAC = '5'
+path_to_dataset = f'./MappedDataset/Voxpopuli{DATASETFRAC}p'
 
-torch.device('cpu')
+torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 num_labels = len(Ontonotes5Features.ontonotes_labels_bio)
 audio_config = AutoConfig.from_pretrained("facebook/wav2vec2-base-960h")
 text_config = BertConfig.from_pretrained("bert-base-uncased")
@@ -30,10 +30,10 @@ data_collator = DataCollatorForTokenClassification(tokenizer=text_tokenizer)
 modelText = TextNER.CustomTextModel(text_config, num_labels)
 modelAudioText = AudioTextNER.CustomAudioTextModel(audio_config, text_config, num_labels)
 
-# models = [modelAudioText, modelText]
-models = [modelText, modelAudioText]
-# evaluators = [AudioTextModelUtils.evaluate_audio_text_model, TextModelUtils.evaluate_text_model]
-evaluators = [TextNER.evaluate_text_model, AudioTextNER.evaluate_audio_text_model]
+models = [modelAudioText, modelText]
+# models = [modelText, modelAudioText]
+evaluators = [AudioTextNER.evaluate_audio_text_model, TextNER.evaluate_text_model]
+# evaluators = [TextNER.evaluate_text_model, AudioTextNER.evaluate_audio_text_model]
 
 dataset = load_from_disk(path_to_dataset)
 

@@ -15,16 +15,16 @@ num_labels = len(Ontonotes5Features.ontonotes_labels_bio)
 dataset = load_from_disk('./MappedDataset/Voxpopuli5p')
 text_tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-textConfig = AutoConfig.from_pretrained('./FromPretrainedResult/TextModel')
+textConfig = AutoConfig.from_pretrained('./FromPretrainedResult/TextModel5p')
 
-modelText = CustomTextModel(textConfig, num_labels=num_labels).to("mps")
-modelText.load_state_dict(torch.load('./TorchResult/TextModel.pth'))
+modelText = CustomTextModel(textConfig, num_labels=num_labels).to('cuda' if torch.cuda.is_available() else 'mps')
+modelText.load_state_dict(torch.load('./TorchResult/TextModel5p.pth'))
 
 audio_text_config_text = BertConfig.from_pretrained("bert-base-uncased")
 audio_text_config_audio = AutoConfig.from_pretrained("facebook/wav2vec2-base-960h")
 
 modelAudioText = CustomAudioTextModel(audio_config=audio_text_config_audio, text_config=audio_text_config_text, num_labels=num_labels)
-modelAudioText.load_state_dict(torch.load('./TorchResult/AudioTextModel.pth'))
+modelAudioText.load_state_dict(torch.load('./TorchResult/AudioTextModel5p.pth'))
 
 # models = [modelText, modelAudioText]
 models = [modelAudioText, modelText]
