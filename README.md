@@ -8,7 +8,7 @@
   - Two outputs are generated for both models:
     - `./TorchResult/{model.model_name}{DATASETFRAC}p.pth` for _torch.save_
     - `./FromPretrainedResult/{model.model_name}{DATASETFRAC}p` for _save_pretrained_
-  
+  - Configs for transformers can be saved by function `model.save_configs`
 - **Evaluation.py** 
   - load dataset from `./MappedDataset` 
   - load configs from `./FromPretrainedResult`
